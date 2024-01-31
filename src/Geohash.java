@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,12 +54,40 @@ public class Geohash {
     }
 
     public static String encode(double lat, double longi, int precision){
-        boolean[] hash = hash2D(lat, latRange, longi, longRange, precision);
+
+        boolean[] hash = hash2D(lat, Arrays.copyOf(latRange,2), longi, Arrays.copyOf(longRange,2), precision);
         StringBuilder result = new StringBuilder();
         for(int i=0; i<hash.length; i++){
             result.append(hash[i]?'1' : '0');
         }
         return result.toString();
+    }
+
+    public static double[] decode(String hash){
+        double[] result = new double[2];
+        double[] longBnds = Arrays.copyOf(longRange,2);
+        double[] latBnds = Arrays.copyOf(latRange,2);
+        for(int i=0; i<hash.length(); i+=2){
+            double mid = (longBnds[0]+longBnds[1])/2;
+            if(hash.charAt(i)=='1'){
+                longBnds[0]=mid;
+            }
+            else{
+                longBnds[1]=mid;
+            }
+        }
+        for(int i=1; i<hash.length(); i+=2){
+            double mid = (latBnds[0]+latBnds[1])/2;
+            if(hash.charAt(i)=='1'){
+                latBnds[0]=mid;
+            }
+            else{
+                latBnds[1]=mid;
+            }
+        }
+        result[0]=(longBnds[0]+longBnds[1])/2;
+        result[1]=(latBnds[0]+latBnds[1])/2;
+        return result;
     }
 
 
